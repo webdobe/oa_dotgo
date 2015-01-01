@@ -1,0 +1,310 @@
+<?php
+/**
+ * @file
+ * Code for the Open Atrium Site Map feature.
+ */
+
+include_once 'oa_matchbox.features.inc';
+
+/**
+ * Implements hook_menu().
+ */
+function oa_matchbox_menu() {
+  $items['api/oa/matchbox/%'] = array(
+    'page callback' => 'oa_matchbox_matches_callback',
+    'page arguments' => array(3),
+    'access arguments' => array('access content'),
+  );
+  $items['api/oa/matchbox-update/%node'] = array(
+    'page callback' => 'oa_matchbox_update_callback',
+    'page arguments' => array(3),
+    'access arguments' => array('access content'),
+  );
+  $items['api/oa/matchbox-delete/%node'] = array(
+    'page callback' => 'oa_matchbox_delete_callback',
+    'page arguments' => array(3),
+    'access arguments' => array('access content'),
+  );
+  $items['api/oa/matchbox-option/%'] = array(
+    'page callback' => 'oa_matchbox_option_callback',
+    'page arguments' => array(3),
+    'access arguments' => array('access content'),
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_ctools_plugin_directory().
+ */
+function oa_matchbox_ctools_plugin_directory($owner, $plugin_type) {
+  if ($owner == 'ctools' && $plugin_type == 'content_types') {
+    return 'plugins/content_types';
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function oa_matchbox_theme() {
+  $path = drupal_get_path('module', 'oa_matchbox') . '/templates';
+  return array(
+    'oa_matchbox_header' => array(
+      'template' => 'oa-matchbox-header',
+      'variables' => array(
+        'link' => NULL,
+        'search' => NULL,
+      ),
+      'path' => $path,
+    ),
+    'oa_matchbox_app' => array(
+      'template' => 'oa-matchbox-app',
+      'variables' => array(
+        'link' => NULL,
+        'search' => NULL,
+      ),
+      'path' => $path,
+    ),
+  );
+}
+
+/**
+ * JSON callback to return match/submatch/section data for a given match node
+ * @param $nid int optional parent node
+ */
+function oa_matchbox_matches_callback($nid) {
+  $matches = array();
+  oa_matchbox_matches($nid, $matches);
+  drupal_json_output($matches);
+  return;
+}
+
+/**
+ * Helper function to capture the Batch API redirect URL.
+ *
+ * @param string $url
+ *   (optional) URL to redirect to.
+ * @param array $options
+ *   (optional) URL options.
+ *
+ * @return string|NULL
+ *   If a URL is passed in, it'll return NULL; otherwise it'll return an array
+ *   containing the arguments that this function was last called with.
+ */
+function _oa_matchbox_batch_goto($url = NULL, $options = array()) {
+  static $cache;
+  if (is_null($url)) {
+    return $cache;
+  }
+  $cache = array($url, $options);
+}
+
+/**
+ * Ajax Callback for updating fields in a match from the matchbox
+ * @param $node
+ */
+function oa_matchbox_update_callback($node) {
+  if (!node_access('update', $node) || empty($_REQUEST['token']) || !drupal_valid_token($_REQUEST['token'], 'matchbox-node-' . $node->nid)) {
+    ajax_deliver(MENU_ACCESS_DENIED);
+    return;
+  }
+
+  $new_node = $_POST['node'];
+
+  $updated = FALSE;
+  _oa_matchbox_update_field($node, 'title', $new_node['title'], $updated);
+  if ($new_node['type'] == DOTGO_MATCH_TYPE) {
+    // updating a match node
+    _oa_matchbox_update_field($node, 'field_dotgo_match_parent', $new_node['parent_id'], $updated);
+  }
+  if ($updated) {
+    node_save($node);
+
+    // If a batch was set, we need to redirect to the batch and then back to
+    // this match in the matchbox.
+    $batch = batch_get();
+    if (!empty($batch)) {
+      batch_process('matchbox/' . $new_node['parent_id'], 'batch', '_oa_matchbox_batch_goto');
+      $batch_redirect = _oa_matchbox_batch_goto();
+      // Tell the Javascript app that we need to redirect.
+      drupal_json_output(array(array('command' => 'redirect', 'url' => url($batch_redirect[0], array('absolute' => TRUE) + $batch_redirect[1]))));
+    }
+  }
+  return TRUE;
+}
+
+/**
+ * Helper function to update a specific field.  Handles direct node fields,
+ * value fields, entity references, taxonomy references
+ * @param $node
+ * @param $field
+ * @param $value
+ * @param $updated
+ */
+function _oa_matchbox_update_field($node, $field, $value, &$updated) {
+  $lang = LANGUAGE_NONE;
+  if (!isset($node->{$field})) {
+    // no field
+    return;
+  }
+  elseif (is_string($node->{$field}) && ($node->{$field} != $value)) {
+    $node->{$field} = $value;
+    $updated = TRUE;
+  }
+  elseif (is_string($node->{$field})) {
+    // string field did not change
+    return;
+  }
+  elseif (isset($node->{$field}[$lang][0]['value']) && ($node->{$field}[$lang][0]['value'] != $value)) {
+    $node->{$field}[$lang][0]['value'] = $value;
+    $updated = TRUE;
+  }
+  elseif (isset($node->{$field}[$lang][0]['target_id']) && ($node->{$field}[$lang][0]['target_id'] != $value)) {
+    if ($value == 0) {
+      unset($node->{field}[$lang][0]);
+      if (count($node->{field}[$lang]) == 0) {
+        unset($node->{field});
+      }
+    }
+    else {
+      $node->{$field}[$lang][0]['target_id'] = $value;
+    }
+    $updated = TRUE;
+  }
+  elseif (isset($node->{$field}[$lang][0]['tid']) && ($node->{$field}[$lang][0]['tid'] != $value)) {
+    $node->{$field}[$lang][0]['tid'] = $value;
+    $updated = TRUE;
+  }
+}
+
+/**
+ * Ajax Callback for deleting a node
+ * @param $node
+ */
+function oa_matchbox_delete_callback($node) {
+  if (!node_access('delete', $node) || empty($_REQUEST['token']) || !drupal_valid_token($_REQUEST['token'], 'matchbox-node-' . $node->nid)) {
+    ajax_deliver(MENU_ACCESS_DENIED);
+    return;
+  }
+  node_delete($node->nid);
+  return TRUE;
+}
+
+/**
+ * Ajax Callback for saving Show Help to user session
+ * @param $value
+ */
+function oa_matchbox_option_callback($value) {
+  global $user;
+  if (empty($_REQUEST['token']) || !drupal_valid_token($_REQUEST['token'], 'matchbox-option')) {
+    ajax_deliver(MENU_ACCESS_DENIED);
+    return;
+  }
+
+  if (($user->uid == 0) && !drupal_session_started()) {
+    return;
+  }
+
+  $_SESSION['oa_matchbox_option'] = $value;
+  return TRUE;
+}
+
+/**
+ * Main helper function to grab all the matches for the matchbox
+ * @param $node, node object or nid
+ * @param $matches array by reference to be filled with match listing
+ * @param $parent_id int nid of parent match
+ * @param $index, start at 0
+ * @param $depth, start at 0
+ * Returns an array of data
+ *
+ */
+function oa_matchbox_matches($node, &$matches, $parent_id = 0, $depth = 0) {
+  global $user;
+
+  if (is_numeric($node)) {
+    $node = node_load($node);
+  }
+  $nid = !empty($node) ? $node->nid : 0;
+
+  /*
+  $sections = oa_core_match_sections($nid, 1, FALSE, array(
+    'field_oa_section|tid',
+    'field_oa_group_ref|target_id',
+    'field_oa_team_ref|target_id',
+    'field_oa_user_ref|target_id',
+  ));
+
+  $new_section = (!empty($node) && (og_user_access('node', $nid, "create " . OA_SECTION_TYPE . " content", $user)));
+
+  */
+
+  $new_match = empty($node) ? user_access('create ' . DOTGO_MATCH_TYPE . ' content', $user) : TRUE;
+
+  $visibility = 1;
+  if (!empty($node)) {
+    $visibility = field_get_items('node', $node, 'group_access');
+    $visibility = $visibility[0]['value'];
+  }
+
+  $admin_access = empty($node) ? $new_match : node_access('update', $node);
+
+  /*
+  $section_links = array();
+  foreach ($sections as $section) {
+    $id = $section->field_oa_section_tid;
+    if (empty($id)) {
+      $term = taxonomy_get_term_by_name('Default', 'section_type');
+      $id = !empty($term) ? current(array_keys($term)) : 0;
+    }
+    $section_links[] = array(
+      'nid' => $section->nid,
+      'parent_id' => ($nid == 0) ? -1 : $parent_id,
+      'type' => OA_SECTION_TYPE,
+      'title' => $section->title,
+      'url' => url('node/' . $section->nid),
+      'url_edit' => url('node/' . $section->nid . '/edit'),
+      //don't have a full section node, so can't call node_access('update',section)
+      //so use the parent's admin access
+      'admin' => empty($matches[$parent_id]) ? $admin_access : $matches[$parent_id]['admin'],
+      'visibility' =>
+        empty($section->field_oa_group_ref_target_id) &&
+        empty($section->field_oa_team_ref_target_id) &&
+        empty($section->field_oa_user_ref_target_id),
+      'icon_id' => $id,
+    );
+    drupal_add_js(array('oa_matchbox' => array('node_tokens' => array('node_' . $section->nid => drupal_get_token('matchbox-node-' . $section->nid)))), 'setting');
+  }
+  */
+
+  $matches[$nid] = array(
+    'nid' => $nid,
+    'parent_id' => ($nid == 0) ? -1 : $parent_id,
+    'type' => DOTGO_MATCH_TYPE,
+    'title' => !empty($node) ? decode_entities(check_plain($node->title)) : 'Matchbox',
+    'url' => !empty($node) ? url('node/' . $nid) : url('<front>'),
+    'url_edit' => !empty($node) ? url('node/' . $nid . '/edit') : '',
+    'admin' => $admin_access,
+    'status' => !empty($node) ? $node->status : 1,
+    'visibility' => 1,
+    'new_match'=> $new_match,
+    //'new_section' => $new_section,
+    //'sections' => $section_links,
+    'submatches' => array(),
+  );
+  drupal_add_js(array('oa_matchbox' => array('node_tokens' => array('node_' . $nid => drupal_get_token('matchbox-node-' . $nid)))), 'setting');
+  drupal_add_js(array('oa_matchbox' => array('option_token' => drupal_get_token('matchbox-option'))), 'setting');
+
+
+  $children = dotgo_matches_get_by_parent($nid);
+
+  if(!empty($children)){
+    //$matches[$nid]['new_match'] = FALSE;
+  }
+
+  foreach ($children as $child) {
+    $matches[$nid]['submatches'][] = $child;
+    oa_matchbox_matches($child, $matches, $nid, $depth+1);
+  }
+  return $matches;
+}

@@ -1,0 +1,20 @@
+name = Open Atrium Dotgo
+description = Dotgo integrated into open atrium.
+core = 7.x
+package = Open Atrium
+dependencies[] = dotgo
+dependencies[] = ctools
+dependencies[] = features
+apps[screenshots][] = app/screenshot.png
+apps[logo] = app/logo.png
+apps[author] = dobe
+apps[author_url] = https://www.drupal.org/u/dobe
+apps[server] = openatrium
+apps[package] = External Apps
+features[ctools][] = page_manager:pages_default:1
+features[ctools][] = panelizer:panelizer:1
+features[ctools][] = strongarm:strongarm:1
+features[page_manager_handlers][] = node_edit_panel_context_dotgo_match
+features[panelizer_defaults][] = node:oa_section:oa_section_dotgo
+features[panelizer_defaults][] = node:dotgo_match:default
+

@@ -1,0 +1,462 @@
+/* line 5, ../sass/oa_matchbox_app.scss */
+body.oa-matchbox-full {
+  background: #E6F8FD;
+}
+/* line 7, ../sass/oa_matchbox_app.scss */
+body.oa-matchbox-full #main-wrapper {
+  background: #E6F8FD;
+}
+/* line 9, ../sass/oa_matchbox_app.scss */
+body.oa-matchbox-full #main-wrapper #main {
+  background: #E6F8FD;
+}
+/* line 13, ../sass/oa_matchbox_app.scss */
+body.oa-matchbox-full .oa-matchbox {
+  background: #E6F8FD url(../images/clouds.png) no-repeat center top;
+}
+
+/* line 18, ../sass/oa_matchbox_app.scss */
+.oa-matchbox {
+  margin-top: 20px;
+  /***** Add styles for front page design with help test *******/
+}
+/* line 31, ../sass/oa_matchbox_app.scss */
+.oa-matchbox [ng-drag].dragging {
+  opacity: 0.5;
+}
+/* line 36, ../sass/oa_matchbox_app.scss */
+.oa-matchbox [ng-drop].drag-enter {
+  background: #42BB3D;
+  opacity: 0.7;
+}
+/* line 40, ../sass/oa_matchbox_app.scss */
+.oa-matchbox [ng-drop].oa-section-title.drag-enter {
+  background: transparent;
+  opacity: 1;
+}
+/* line 44, ../sass/oa_matchbox_app.scss */
+.oa-matchbox [ng-drop].drag-enter .oa-section-icon {
+  background: #42BB3D;
+  opacity: 0.7;
+}
+/* line 49, ../sass/oa_matchbox_app.scss */
+.oa-matchbox textarea {
+  width: 100%;
+  height: 124px;
+}
+/* line 53, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-section-title textarea {
+  width: 100%;
+  height: 60px;
+}
+/* line 57, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-section-title .oa-rename-actions {
+  font-size: 14px;
+}
+/* line 61, ../sass/oa_matchbox_app.scss */
+.oa-matchbox a, .oa-matchbox a:visited, .oa-matchbox a:active {
+  color: black;
+}
+/* line 64, ../sass/oa_matchbox_app.scss */
+.oa-matchbox a:hover {
+  text-decoration: none;
+  color: #008fe2;
+}
+/* line 70, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-matchbox-title h3 {
+  margin: 3px 20px 0 0;
+}
+/* line 75, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-matchbox-header {
+  margin-bottom: 5px;
+}
+/* line 77, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-matchbox-header a {
+  position: relative;
+  display: block;
+  z-index: 5;
+  margin-right: 10px;
+}
+/* line 85, ../sass/oa_matchbox_app.scss */
+.oa-matchbox a.btn-none {
+  padding: 8px 16px;
+  font-size: 12px;
+  text-decoration: underline;
+  color: #777;
+}
+/* line 92, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-matchbox-search {
+  z-index: 5;
+}
+/* line 94, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-matchbox-search .active {
+  background: #095a8b;
+  color: white;
+}
+/* line 100, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-matchbox-full {
+  margin-top: 10px;
+}
+/* line 104, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-matchbox-breadcrumbs,
+.oa-matchbox .oa-matchbox-trailcrumbs {
+  display: block;
+  text-align: center;
+  margin: 0;
+}
+/* line 111, ../sass/oa_matchbox_app.scss */
+.oa-matchbox #oa-matchbox-top {
+  background: white;
+  position: relative;
+}
+/* line 116, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-matchbox-breadcrumb a {
+  margin-bottom: 20px;
+  position: relative;
+  border: 1px solid #aaa;
+}
+/* line 120, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-matchbox-breadcrumb a:after {
+  content: "";
+  position: absolute;
+  width: 2px;
+  height: 20px;
+  background: #aaa;
+  left: 50%;
+  bottom: -22px;
+}
+/* line 131, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-matchbox-trailcrumb a {
+  margin-top: 20px;
+  position: relative;
+  border: 1px solid #aaa;
+}
+/* line 135, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-matchbox-trailcrumb a:before {
+  content: "";
+  position: absolute;
+  width: 2px;
+  height: 20px;
+  background: #aaa;
+  left: 50%;
+  top: -22px;
+}
+/* line 146, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-carousel-container {
+  border: 1px solid #bbb;
+  border-radius: 10px;
+  padding-bottom: 20px;
+}
+/* line 152, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-matches {
+  position: relative;
+  text-align: center;
+  height: auto;
+  overflow: visible;
+}
+/* line 158, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-match-header {
+  position: relative;
+  margin: 0 0 20px;
+  text-align: center;
+  background: #032941;
+  color: white;
+  border-bottom: 1px solid #aaa;
+  border-radius: 8px;
+  padding: 8px 0;
+}
+/* line 167, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-match-header a, .oa-matchbox .oa-match-header a:visited, .oa-matchbox .oa-match-header a:active {
+  color: white;
+}
+/* line 170, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-match-header button {
+  font-weight: 300;
+  font-size: 18px;
+  position: absolute;
+  border: none;
+  background: none;
+  color: white;
+  line-height: 34px;
+  padding: 0;
+}
+/* line 179, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-match-header button:hover {
+  outline: none;
+  color: yellow;
+}
+/* line 183, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-match-header button:active, .oa-matchbox .oa-match-header button:visited, .oa-matchbox .oa-match-header button:focus {
+  color: white;
+}
+/* line 187, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-match-header a [class^="icon-"] {
+  font-size: 22px;
+  color: #CCC;
+}
+/* line 191, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-match-header .next {
+  right: 30px;
+}
+/* line 193, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-match-header .next:after {
+  content: "";
+  position: absolute;
+  right: -20px;
+  top: 8px;
+  border-left: 12px solid white;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+}
+/* line 203, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-match-header .prev {
+  left: 30px;
+}
+/* line 205, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-match-header .prev:before {
+  content: "";
+  position: absolute;
+  left: -20px;
+  top: 8px;
+  border-right: 12px solid white;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+}
+/* line 216, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .dropdown {
+  display: inline-block;
+}
+/* line 219, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-section-title.dropdown {
+  display: block;
+}
+/* line 222, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .dropdown-menu > li > a {
+  padding: 0 20px;
+  color: #333;
+}
+/* line 225, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .dropdown-menu > li > a:hover {
+  color: white;
+}
+/* line 229, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-match-title {
+  font-size: 24px;
+  font-weight: bold;
+  display: inline-block;
+}
+/* line 233, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-match-title:hover, .oa-matchbox .oa-match-title.open:hover, .oa-matchbox .oa-match-title:active, .oa-matchbox .oa-match-title.open:active, .oa-matchbox .oa-match-title:focus, .oa-matchbox .oa-match-title.open:focus {
+  text-decoration: none;
+}
+/* line 238, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-sections {
+  text-align: center;
+}
+/* line 241, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-section {
+  width: 110px;
+  margin-bottom: 10px;
+  display: inline-block;
+  vertical-align: top;
+  text-align: center;
+}
+/* line 248, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-section-icon {
+  display: block;
+  margin: 0 20px;
+  height: 70px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+}
+/* line 255, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-section-icon img {
+  width: 36.66667px;
+  position: relative;
+  top: 50%;
+  -moz-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  -webkit-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+/* line 261, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-section-icon i {
+  display: block;
+  position: relative;
+  font-size: 32px;
+  top: 50%;
+  -moz-transform: translateY(-40%);
+  -ms-transform: translateY(-40%);
+  -webkit-transform: translateY(-40%);
+  transform: translateY(-40%);
+}
+/* line 269, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .newsection .oa-section-icon {
+  border: 1px dashed #aaa;
+  color: #3b3b3b;
+}
+/* line 272, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .newsection .oa-section-icon:hover {
+  background-color: #ddd;
+}
+/* line 277, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-submatch {
+  position: relative;
+  border: 1px solid #ddd;
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 10px;
+  margin-left: 10px;
+  width: 154px;
+  height: 154px;
+  margin-bottom: 10px;
+}
+/* line 287, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-submatch.oa-new-match {
+  border: 1px dashed #aaa;
+}
+/* line 289, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-submatch.oa-new-match i {
+  margin-bottom: 5px;
+}
+/* line 295, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-submatch-title {
+  margin: 0;
+  text-align: center;
+  position: relative;
+  height: 100%;
+}
+/* line 302, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-submatch-link {
+  display: block;
+  height: 100%;
+  cursor: pointer;
+  background: #f7f7f7;
+  font-size: 24px;
+}
+/* line 308, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-submatch-link:hover {
+  text-decoration: none;
+  background: #ddd;
+}
+/* line 312, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-submatch-link span {
+  display: block;
+  position: relative;
+  top: 50%;
+  -moz-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  -webkit-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+/* line 318, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-submatch-link i {
+  display: block;
+  color: #3B3B3B;
+}
+/* line 323, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-submatch-icons {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  font-size: 22px;
+  z-index: 4;
+}
+/* line 330, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-submatch-icons a {
+  color: #999;
+}
+/* line 332, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-submatch-icons a:hover {
+  color: #0071B3;
+  text-decoration: none;
+}
+/* line 338, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-submatch-icon-left {
+  float: left;
+  width: 33%;
+}
+/* line 342, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-submatch-icon-center {
+  float: left;
+  width: 33%;
+}
+/* line 346, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-submatch-icon-right {
+  float: right;
+  width: 33%;
+}
+/* line 350, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-icon-green {
+  color: #42BB3D;
+}
+/* line 353, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-icon-red {
+  color: #FB4D53;
+}
+/* line 356, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-border-green {
+  border-color: #42BB3D;
+}
+/* line 359, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-border-red {
+  border-color: #FB4D53;
+}
+/* line 364, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-matchbox-help {
+  position: relative;
+  margin-bottom: 20px;
+  margin-top: 75px;
+}
+/* line 368, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-matchbox-help > div {
+  background: #32c0ec;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-family: Roboto, sans-serif;
+  font-size: 16px;
+  font-weight: 300;
+  padding-right: 240px;
+}
+/* line 378, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-matchbox-help img.oa-matchbox-helpimage {
+  position: absolute;
+  height: 150px;
+  bottom: 15px;
+  right: -10px;
+}
+/* line 384, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-matchbox-help img.oa-matchbox-helpicon {
+  margin-right: 20px;
+  width: 60px;
+}
+/* line 388, ../sass/oa_matchbox_app.scss */
+.oa-matchbox .oa-matchbox-help .oa-matchbox-caret {
+  text-align: center;
+  padding: 0;
+  margin: 0;
+  height: 22px;
+  background: transparent;
+  margin-top: -7px;
+}
+
+/* Mobile settings */
+@media only screen and (max-width: 768px) {
+  /* line 402, ../sass/oa_matchbox_app.scss */
+  .oa-matchbox .oa-matchbox-help {
+    position: relative;
+    margin-bottom: 10px;
+    margin-top: 0px;
+  }
+  /* line 406, ../sass/oa_matchbox_app.scss */
+  .oa-matchbox .oa-matchbox-help img {
+    display: none;
+  }
+  /* line 410, ../sass/oa_matchbox_app.scss */
+  .oa-matchbox .oa-matchbox-help > div {
+    padding-right: 20px;
+  }
+}

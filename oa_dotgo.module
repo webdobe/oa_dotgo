@@ -1,0 +1,9 @@
+<?php
+
+/**
+ * @file
+ * Code for the Open Atrium Dotgo feature.
+ */
+
+include_once 'oa_dotgo.features.inc';
+

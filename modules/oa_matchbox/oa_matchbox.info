@@ -1,0 +1,24 @@
+name = Open Atrium Dotgo Matchbox
+description = A tool to build a dotgo match campaign.
+core = 7.x
+package = Open Atrium
+dependencies[] = ctools
+dependencies[] = oa_dotgo
+dependencies[] = oa_wizard
+dependencies[] = page_manager
+apps[screenshots][] = app/screenshot.png
+apps[logo] = app/logo.png
+apps[author] = dobe
+apps[author_url] = https://www.drupal.org/u/dobe
+apps[server] = openatrium
+apps[package] = External Apps
+features[ctools][] = page_manager:pages_default:1
+features[features_api][] = api:2
+features[page_manager_pages][] = oa_matchbox
+
+; Information added by Drupal.org packaging script on 2014-12-17
+version = "7.x-2.1"
+core = "7.x"
+project = "oa_matchbox"
+datestamp = "1418843285"
+

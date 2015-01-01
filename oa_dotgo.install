@@ -1,0 +1,29 @@
+<?php
+
+/**
+ * @file
+ * Install, update, and uninstall functions for the Open Atrium Work Tracker module.
+ */
+
+/**
+ * Adds the 'Tasks Section' term to the 'section_type' vocabulary.
+ */
+function oa_dotgo_install_section_type() {
+  $params = array(
+    'description' => 'Allows users to create <em>Matchs</em>.',
+    'node_options' => array(
+      'dotgo_match',
+    ),
+    'layout' => 'node:oa_section:oa_section_dotgo',
+    'icon' => 'icon-check',
+  );
+  oa_core_create_term('section_type', 'Dotgo Section', $params);
+
+}
+
+/**
+ * Implements hook_install().
+ */
+function oa_dotgo_install() {
+  oa_dotgo_install_section_type();
+}
