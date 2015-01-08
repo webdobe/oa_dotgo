@@ -110,15 +110,35 @@ function oa_matchbox_update_callback($node) {
   }
 
   $new_node = $_POST['node'];
+  $other_node = isset($_POST['other_node']) ? $_POST['other_node'] : NULL;
 
   $updated = FALSE;
-  _oa_matchbox_update_field($node, 'title', $new_node['title'], $updated);
+  $title_updated = FALSE;
+  $other_updated = FALSE;
+  _oa_matchbox_update_field($node, 'title', $new_node['title'], $title_updated);
   if ($new_node['type'] == DOTGO_MATCH_TYPE) {
     // updating a match node
     _oa_matchbox_update_field($node, 'field_dotgo_match_parent', $new_node['parent_id'], $updated);
+    if($other_node){
+      _oa_matchbox_update_field($node, 'field_dotgo_match_weight', $other_node['weight'], $updated);
+      $cid = dotgo_matches_get_cache_id(DOTGO_CACHE_USER_QUERY, $node->nid, FALSE, array($node->vid));
+      cache_clear_all($cid, 'cache_matches');
+
+      $other = node_load($other_node['nid']);
+      _oa_matchbox_update_field($other, 'field_dotgo_match_weight', $new_node['weight'], $other_updated);
+      $cid = dotgo_matches_get_cache_id(DOTGO_CACHE_USER_QUERY, $other->nid, FALSE, array($other->vid));
+      cache_clear_all($cid, 'cache_matches');
+    }
   }
-  if ($updated) {
+
+  if ($other_updated) {
+    field_attach_update('node', $other);
+  }
+  if ($title_updated) {
     node_save($node);
+  }
+  else if ($updated) {
+    field_attach_update('node', $node);
 
     // If a batch was set, we need to redirect to the batch and then back to
     // this match in the matchbox.
@@ -222,22 +242,45 @@ function oa_matchbox_option_callback($value) {
 function oa_matchbox_matches($node, &$matches, $parent_id = 0, $depth = 0) {
   global $user;
 
+  $dg = _dotgo_designator();
+  $tld = _dotgo_tld();
+
   if (is_numeric($node)) {
     $node = node_load($node);
   }
   $nid = !empty($node) ? $node->nid : 0;
 
-  /*
-  $sections = oa_core_match_sections($nid, 1, FALSE, array(
-    'field_oa_section|tid',
-    'field_oa_group_ref|target_id',
-    'field_oa_team_ref|target_id',
-    'field_oa_user_ref|target_id',
-  ));
+  $fields = array(
+    'og_group_ref' => 'target_id',
+    'oa_section_ref' => 'target_id',
+    'field_dotgo_match' => 'target_id',
+    'field_dotgo_match_parent' => 'target_id'
+  );
 
-  $new_section = (!empty($node) && (og_user_access('node', $nid, "create " . OA_SECTION_TYPE . " content", $user)));
+  $parameters = array();
+  foreach($fields as $field_name => $field_value) {
+    if(!empty($node->{$field_name}[$node->language])) {
+      if($field_name == 'field_dotgo_match_parent'){
+        $parameters[$field_name] = $node->nid;
+      } else {
+        $parameters[$field_name] = $node->{$field_name}[$node->language][0][$field_value];
+      }
+    } else {
+      if($field_name == 'field_dotgo_match_parent'){
+        $parameters[$field_name] = $node->nid;
+      }
+    }
+  }
 
-  */
+  if($parent_id){
+    $user_message = $node->dotgo->user_query;
+  } else {
+    $pattern = empty($node->field_dotgo_match_pattern) ? '' : ' '.$node->field_dotgo_match_pattern[$node->language][0]['value'];
+    $to = ' to DOT'.strtoupper($tld).' ('.strtoupper(_dotgo_tld_lookup($tld)).')';
+    $user_message = '<span>Send: </span>'.$dg.$pattern.$to;
+  }
+
+  $dotgo_messages = _dotgo_split_simulator_message($node->dotgo->simulator_message);
 
   $new_match = empty($node) ? user_access('create ' . DOTGO_MATCH_TYPE . ' content', $user) : TRUE;
 
@@ -249,34 +292,6 @@ function oa_matchbox_matches($node, &$matches, $parent_id = 0, $depth = 0) {
 
   $admin_access = empty($node) ? $new_match : node_access('update', $node);
 
-  /*
-  $section_links = array();
-  foreach ($sections as $section) {
-    $id = $section->field_oa_section_tid;
-    if (empty($id)) {
-      $term = taxonomy_get_term_by_name('Default', 'section_type');
-      $id = !empty($term) ? current(array_keys($term)) : 0;
-    }
-    $section_links[] = array(
-      'nid' => $section->nid,
-      'parent_id' => ($nid == 0) ? -1 : $parent_id,
-      'type' => OA_SECTION_TYPE,
-      'title' => $section->title,
-      'url' => url('node/' . $section->nid),
-      'url_edit' => url('node/' . $section->nid . '/edit'),
-      //don't have a full section node, so can't call node_access('update',section)
-      //so use the parent's admin access
-      'admin' => empty($matches[$parent_id]) ? $admin_access : $matches[$parent_id]['admin'],
-      'visibility' =>
-        empty($section->field_oa_group_ref_target_id) &&
-        empty($section->field_oa_team_ref_target_id) &&
-        empty($section->field_oa_user_ref_target_id),
-      'icon_id' => $id,
-    );
-    drupal_add_js(array('oa_matchbox' => array('node_tokens' => array('node_' . $section->nid => drupal_get_token('matchbox-node-' . $section->nid)))), 'setting');
-  }
-  */
-
   $matches[$nid] = array(
     'nid' => $nid,
     'parent_id' => ($nid == 0) ? -1 : $parent_id,
@@ -284,10 +299,14 @@ function oa_matchbox_matches($node, &$matches, $parent_id = 0, $depth = 0) {
     'title' => !empty($node) ? decode_entities(check_plain($node->title)) : 'Matchbox',
     'url' => !empty($node) ? url('node/' . $nid) : url('<front>'),
     'url_edit' => !empty($node) ? url('node/' . $nid . '/edit') : '',
+    'parameters' => !empty($node) ? $parameters : NULL,
     'admin' => $admin_access,
     'status' => !empty($node) ? $node->status : 1,
     'visibility' => 1,
     'new_match'=> $new_match,
+    'user_message' => $user_message,
+    'dotgo_messages' => $dotgo_messages,
+    'weight' => empty($node->field_dotgo_match_weight) ? 0 : $node->field_dotgo_match_weight[$node->language][0]['value'],
     //'new_section' => $new_section,
     //'sections' => $section_links,
     'submatches' => array(),

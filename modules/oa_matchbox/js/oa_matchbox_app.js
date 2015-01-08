@@ -17,6 +17,7 @@
     var lastID = 0;
     var allMatches = {};
     var orderMatches = {};
+    var messages = [];
     var breadcrumbs = [];
     var trailcrumbs = [];
 
@@ -47,6 +48,22 @@
       }, 10);
 
       return currentMatches;
+    }
+
+    var current = true;
+    function loadMessages(id) {
+      var parentId = allMatches[id].parent_id;
+
+      if(current){
+        messages.push(allMatches[id]);
+        current = false;
+      }
+      if ((parentId != -1) && (parentId in allMatches)) {
+        messages.push(allMatches[parentId]);
+        loadMessages(parentId);
+      }
+
+      return messages;
     }
 
     function loadBreadCrumbs(id) {
@@ -98,7 +115,7 @@
         var submatches = allMatches[id].submatches;
         for (var i in submatches) {
           var matchID = submatches[i];
-          allMatches[matchID].prefix = 'Step '+(depth+1)+': ';//new Array(depth+1).join("- ");
+          allMatches[matchID].prefix = '';//new Array(depth+1).join("- ");
           allMatches[matchID].classes = matchID == active ? 'active' : '';
           dropDownSelects.push(allMatches[matchID]);
           if (allMatches[matchID].submatches.length >= 1) {
@@ -148,14 +165,14 @@
     topID = Drupal.settings.oa_matchbox.topID;
     allMatches = Drupal.settings.oa_matchbox.matches;
     orderMatches = returnDropDownSelects(topID, topID);
-    lastID = orderMatches[Object.keys(orderMatches)[Object.keys(orderMatches).length-1]].nid;
+    //lastID = orderMatches[Object.keys(orderMatches)[Object.keys(orderMatches).length-2]].nid;
 
     $scope.allMatches = allMatches;
-    $scope.matches = loadMatch(lastID);
+    $scope.matches = loadMatch(topID);
     $scope.topDropdown = (0 in allMatches) ? 0 : topID;
-    $scope.dropDownSelects = returnDropDownSelects(lastID, $scope.topDropdown);
+    $scope.dropDownSelects = returnDropDownSelects(topID, $scope.topDropdown);
     $scope.editableTitle = {};
-    $scope.match = allMatches[lastID];
+    $scope.match = allMatches[topID];
     $scope.showHelp = Drupal.settings.oa_matchbox.showHelp;
     $scope.helpStatus = Drupal.settings.oa_matchbox.options & 0x01;
     $scope.dragDrop = Drupal.settings.oa_matchbox.options & 0x02;
@@ -164,17 +181,20 @@
     $scope.sectionHelp = Drupal.settings.oa_matchbox.sectionHelp;
     $scope.basePath = Drupal.settings.oa_matchbox.basePath;
     $scope.title = Drupal.settings.oa_matchbox.title;
-    $scope.breadcrumbs = loadBreadCrumbs(lastID);
-    $scope.trailcrumbs = loadTrailCrumbs(lastID, lastID);
+    $scope.messages = loadMessages(topID);
+    $scope.breadcrumbs = loadBreadCrumbs(topID);
+    $scope.trailcrumbs = loadTrailCrumbs(topID, topID);
     $scope.icons = Drupal.settings.oa_matchbox.icons;
-    $scope.currentSlide = returnMatchPosition($scope.matches, lastID);
+    $scope.currentSlide = returnMatchPosition($scope.matches, topID);
 
     $scope.exploreMatch = function(matchID, direction) {
       if (!allMatches[matchID].dragging) {
+        current = true;
+        messages = [];
         breadcrumbs = [];
-
+        $scope.messages = loadMessages(matchID);
         $scope.breadcrumbs = loadBreadCrumbs(matchID);
-        $scope.trailcrumbs = loadTrailCrumbs(lastID, matchID);
+        $scope.trailcrumbs = loadTrailCrumbs(topID, matchID);
         $scope.matches = loadMatch(matchID);
         $scope.currentSlide = returnMatchPosition($scope.matches, matchID);
         $scope.match = allMatches[matchID];
@@ -258,8 +278,9 @@
 
     $scope.newMatchURL = function(matchID) {
       var url = Drupal.settings.basePath + 'api/oa_wizard/match-wizard';
-      if (matchID > 0) {
-        url = url + '?field_dotgo_match_parent=' + matchID;
+
+      if (allMatches[matchID].parameters) {
+        url += '?' + $.param(allMatches[matchID].parameters);
       }
       return url;
     };
@@ -363,6 +384,8 @@
     $scope.onDropOnMatch = function(data, matchID, evt){
       if (data.nid != matchID) {
         // dropping a match or section on a match
+        console.log("drop MATCHLIST " + matchID + " success, data:", data);
+        console.log("drop MATCHLIST, event:", evt);
         var oldParent = data.parent_id;
         data.parent_id = matchID;
         $.post(
@@ -396,19 +419,50 @@
       }
     };
 
-    $scope.onDropOnMatchList = function(data, index, matchID, evt){
+    $scope.onDropOnMatchWeight = function(data, matchID, evt){
       if (data.nid != matchID) {
-        // don't drop over itself
-        console.log("drop MATCHLIST " + matchID + " success, index: " + index + " data:", data);
-        // reordering submatches
+        // dropping a match or section on a match
+        //console.log("drop MATCHWEIGHT " + matchID + " success, data:", data);
+        //console.log("drop MATCHWEIGHT, event:", evt);
+        var parent = data.parent_id;
+        var other_node = allMatches[matchID];
+        $.post(
+          // Callback URL.
+          Drupal.settings.basePath + 'api/oa/matchbox-update/' + data.nid,
+          {'node': data, 'other_node': other_node, token: Drupal.settings.oa_matchbox.node_tokens['node_' + data.nid]},
+          function( result ) {
+            if ((result.length > 0) && (result[0].command == 'redirect')) {
+              window.location.href = result[0].url;
+            }
+            else if ((result.length > 0) && (result[1].command == 'alert')) {
+              // failed, so undo
+              console.log('FAILURE!');
+              /*
+              data.parent_id = oldParent;
+              $scope.$apply();
+              alert(result[1].text);*/
+            }
+            else {
+              if (data.type == 'dotgo_match') {
+                var oldIndex = allMatches[parent].submatches.indexOf(data.nid);
+                var newIndex = allMatches[parent].submatches.indexOf(other_node.nid);
+                allMatches[parent].submatches[oldIndex] = other_node.nid;
+                allMatches[other_node.nid].weight = oldIndex;
+
+                allMatches[parent].submatches[newIndex] = data.nid;
+                allMatches[data.nid].weight = newIndex;
+              }
+              $scope.$apply();
+            }
+          });
       }
     };
 
-    $scope.onDropOnSection = function(data, index, section, evt){
-      if (!angular.equals(data,section)) {
+    $scope.onDropOnMatchClone = function(data, index, matchID, evt){
+      if (data.nid != matchID) {
         // don't drop over itself
-        console.log("drop SECTION " + index + " success, data:", data);
-        // reordering sections
+        console.log("drop MATCHCLONE " + matchID + " success, index: " + index + " data:", data);
+        // reordering submatches
       }
     };
 
@@ -417,6 +471,7 @@
       switch (node.type) {
         case 'dotgo_match':
           var parentID = (node.field_dotgo_match_parent == undefined) ? 0 : node.field_dotgo_match_parent.und[Object.keys(node.field_dotgo_match_parent.und)[0]].target_id;
+          //var parameters = (allMatches[parentID].parameters == undefined) ? 0 : allMatches[parentID].parameters;
           allMatches[node.nid] = {
             'nid': node.nid,
             'parent_id': parentID,
@@ -427,6 +482,7 @@
             'admin': allMatches[parentID].admin,
             'url': Drupal.settings.basePath + 'node/' + node.nid,
             'url_edit': Drupal.settings.basePath + 'node/' + node.nid + '/edit',
+            //'parameters': parameters,
             'new_match': allMatches[parentID].new_match,
             //'sections': [],
             'submatches': []

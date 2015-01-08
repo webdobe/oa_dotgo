@@ -78,7 +78,6 @@ body.oa-matchbox-full {
       position: relative;
       display: block;
       z-index: 5;
-      margin-right: 10px;
     }
   }
 
@@ -143,6 +142,29 @@ body.oa-matchbox-full {
     }
   }
 
+  .oa-matchbox-messages {
+    margin: 0 0 10px;
+  }
+
+  .oa-matchbox-message a.message-init .popover {
+    background-color: #dddddd;
+
+  }
+
+  .oa-matchbox-message a.message-init .popover.left > .arrow:after,
+  .oa-matchbox-message a.message-init .popover.right > .arrow:after {
+    border-left-color: #dddddd;
+  }
+
+  .oa-matchbox-stream .popover {
+    display: block;
+    max-width: 100%;
+    min-width: 100%;
+    position: relative;
+    margin: 0 0 10px;
+    z-index: 0;
+  }
+
   .oa-carousel-container {
     border: 1px solid #bbb;
     border-radius: 10px;
@@ -151,10 +173,11 @@ body.oa-matchbox-full {
 
   .oa-matches {
     position: relative;
-    text-align: center;
     height: auto;
     overflow: visible;
+    text-align: center;
   }
+
   .oa-match-header {
     position: relative;
     margin: 0 0 $vertical-gap;
@@ -378,7 +401,7 @@ body.oa-matchbox-full {
     img.oa-matchbox-helpimage {
       position: absolute;
       height: 150px;
-      bottom: 15px;
+      top: -40px;
       right: -10px;
     }
     img.oa-matchbox-helpicon {
